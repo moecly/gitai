@@ -170,12 +170,25 @@ Examples:
     if args.lang is None:
         args.lang = default_lang
     
-    # 加载环境变量
-    env_path = Path('.env')
-    if env_path.exists():
-        load_dotenv(env_path)
-    elif not os.getenv('OPENAI_API_KEY'):
-        print("Warning: .env file not found, using environment variables")
+    # 加载环境变量 - 支持多个位置
+    env_loaded = False
+    env_paths = [
+        Path.cwd() / '.env',                    # 当前目录
+        Path.home() / '.gai.env',               # home目录
+        Path.home() / '.config' / 'gai' / '.env',  # ~/.config/gai/.env
+    ]
+    
+    for env_path in env_paths:
+        if env_path.exists():
+            load_dotenv(env_path)
+            env_loaded = True
+            break
+    
+    if not env_loaded and not os.getenv('OPENAI_API_KEY'):
+        print("Warning: .env file not found in:")
+        for p in env_paths:
+            print(f"  - {p}")
+        print("Will use environment variables or defaults")
     
     # 检查暂存区
     if not check_staged_changes():
