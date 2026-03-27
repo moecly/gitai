@@ -16,6 +16,15 @@ import openai
 from dotenv import load_dotenv
 
 
+def get_exe_dir() -> Path:
+    """获取exe所在目录"""
+    if getattr(sys, 'frozen', False):
+        # PyInstaller 打包后的 exe
+        return Path(sys.executable).parent
+    # 开发环境
+    return Path(__file__).parent
+
+
 def get_staged_diff() -> str:
     """获取暂存区的差异内容"""
     try:
@@ -170,18 +179,19 @@ Examples:
     if args.lang is None:
         args.lang = default_lang
     
-    # 加载环境变量 - 支持多个位置
+    # 加载环境变量 - 优先查找exe所在目录
     env_loaded = False
+    exe_dir = get_exe_dir()
     env_paths = [
-        Path.cwd() / '.env',                    # 当前目录
-        Path.home() / '.gai.env',               # home目录
-        Path.home() / '.config' / 'gai' / '.env',  # ~/.config/gai/.env
+        exe_dir / '.env',              # exe所在目录 (优先)
+        Path.cwd() / '.env',          # 当前目录
     ]
     
     for env_path in env_paths:
         if env_path.exists():
             load_dotenv(env_path)
             env_loaded = True
+            print(f"Info: Loading config from {env_path}\n")
             break
     
     if not env_loaded and not os.getenv('OPENAI_API_KEY'):
