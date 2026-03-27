@@ -10,5 +10,6 @@ venv/
 *.egg-info/
 dist/
 build/
+*.spec
 *.log
 .DS_Store
