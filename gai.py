@@ -74,60 +74,168 @@ def generate_commit_message(diff: str, files: list[str], client: openai.OpenAI, 
             'prompt': '''你是一个专业的git commit信息生成器。
 任务：根据以下代码变更，生成符合 Conventional Commits 规范的中文commit信息。
 
-要求：
-1. 整个输出必须完全使用中文
-2. 不要在输出中夹杂任何英文或拼音
-3. type使用英文缩写，但description和详细说明必须用中文
+【固定格式 - 必须严格按照这个输出】
 
-格式：
-type(scope): description (不超过72字符)
-[空行]
-详细说明：简要描述这次变更的内容和原因'''
+第一行格式：
+type(scope): 简短描述 (不超过72字符)
+
+空一行
+
+本次提交主要[一句话总结这次变更的核心内容]。
+
+1. [功能模块1名称]：
+   - [具体修改内容]
+   - [具体修改内容]
+
+2. [功能模块2名称]：
+   - [具体修改内容]
+   - [具体修改内容]
+
+【示例】
+
+feat(auth): 添加用户登录和会话管理功能
+
+本次提交主要实现了完整的用户认证系统和会话管理机制。
+
+1. 添加用户认证模块：
+   - 实现用户名密码验证逻辑
+   - 添加JWT token生成和验证
+   - 集成登录/登出功能
+
+2. 集成会话管理：
+   - 添加会话存储和过期处理
+   - 实现多设备登录限制
+   - 添加会话刷新机制
+
+【type类型】feat | fix | docs | style | refactor | test | chore | perf | ci | build
+
+请严格按照上述格式输出，只返回commit信息，不要添加任何其他解释。'''
         },
         'en': {
             'system': 'You are a professional code contributor, skilled at generating concise and clear English git commit messages. All output must be in English.',
             'prompt': '''You are a professional git commit message generator.
 Task: Based on the code changes below, generate an English commit message following Conventional Commits specification.
 
-Requirements:
-1. All output must be completely in English
-2. Do not mix in any other languages
-3. Use English for everything including description and details
+【Fixed Format - Must follow exactly】
 
-Format:
-type(scope): description (max 72 chars)
-[blank line]
-Detailed description: Briefly describe the changes and reasons'''
+First line format:
+type(scope): brief description (max 72 chars)
+
+Blank line
+
+This commit [one sentence summary of core changes].
+
+1. [Module name]:
+   - [specific change]
+   - [specific change]
+
+2. [Module name]:
+   - [specific change]
+   - [specific change]
+
+【Example】
+
+feat(auth): add user login and session management
+
+This commit implements a complete user authentication system and session management mechanism.
+
+1. Add user authentication module:
+   - Implement username/password validation logic
+   - Add JWT token generation and verification
+   - Integrate login/logout functionality
+
+2. Integrate session management:
+   - Add session storage and expiration handling
+   - Implement multi-device login limit
+   - Add session refresh mechanism
+
+【type】feat | fix | docs | style | refactor | test | chore | perf | ci | build
+
+Output must follow the format exactly.'''
         },
         'ja': {
-            'system': 'あなたは簡潔で明確な日本語のgitコミットメッセージを作成するのが得意なプロフェッショナルなコード貢献者です。すべての出力が日本語である必要があります。',
+            'system': 'あなたは簡潔で明確な日本語のgitコミットメッセージを作成するのが得手なプロフェッショナルなコード貢献者です。すべての出力が日本語である必要があります。',
             'prompt': '''あなたはプロフェッショナルなgitコミットメッセージ生成者です。
 タスク：以下のコード変更に基づいて、Conventional Commits仕様に準拠した日本語のコミットメッセージを生成してください。
 
-要件：
-1. 出力を完全に日本語にする
-2. 他の言語を混ぜない
-3. typeは英略語を使用、説明は日本語
+【固定形式 - 厳密に守る】
 
-形式：
-type(scope): description (72文字以内)
-[空白行]
-詳細説明：変更の内容と理由を簡単に説明'''
+1行目形式：
+feat(scope): 簡単な説明 (72文字以内)
+
+空白行
+
+本次のコミットは[変更の核心内容の要約]です。
+
+1. [モジュール名]：
+   - [具体的な変更内容]
+   - [具体的な変更内容]
+
+2. [モジュール名]：
+   - [具体的な変更内容]
+   - [具体的な変更内容]
+
+【例】
+
+feat(認証): ユーザーログイン機能を追加
+
+本次のコミットはユーザー認証システムとセッション管理機構を実装しました。
+
+1. ユーザー認証モジュールを追加：
+   - ユーザー名とパスワードの検証ロジックを実装
+   - JWTトークン生成と検証を追加
+   - ログイン/ログアウト機能を統合
+
+2. セッション管理を統合：
+   - セッション存储と有効期限 обработкаを追加
+   - マルチデバイスログイン制限を実装
+   - セッション更新メカニズムを追加
+
+【type】feat | fix | docs | style | refactor | test | chore
+
+形式を厳密に守って出力'''
         },
         'ko': {
-            'system': 'あなたは簡潔で明確な日本語のgitコミットメッセージを作成するのが得意なプロフェッショナルなコード貢献者입니다。すべての出力が日本語である必要があります。',
+            'system': '당신은 한국어 git 커밋 메시지를 작성하는 데 능숙한 전문 코드 기여자입니다. 모든 출력은 한국어로 해야 합니다.',
             'prompt': '''당신은 전문적인 git 커밋 메시지 생성자입니다.
 과제: 아래의 코드 변경 사항에 따라 Conventional Commits 사양을 준수하는 한국어 커밋 메시지를 생성해 주세요.
 
-요구사항:
-1. 모든 출력을 한국어로 작성
-2. 다른 언어를 섞지 않기
-3. type은 영어 약어 사용, 설명은 한국어
+【고정 형식 - 엄격히 준수】
 
-형식:
-type(scope): description (72자 이내)
-[빈 줄]
-상세 설명: 변경 내용과 이유를 간단히 설명'''
+첫 번째 줄 형식：
+feat(scope): 간단한 설명 (72자 이내)
+
+빈 줄
+
+이번 커밋은 [변경의 핵심 내용 요약]입니다.
+
+1. [모듈명]：
+   - [구체적인 변경 내용]
+   - [구체적인 변경 내용]
+
+2. [모듈명]：
+   - [구체적인 변경 내용]
+   - [구체적인 변경 내용]
+
+【예시】
+
+feat(인증): 사용자 로그인 기능 추가
+
+이번 커밋은 완전한 사용자 인증 시스템과 세션 관리 메커니즘을 구현했습니다.
+
+1. 사용자 인증 모듈 추가：
+   - 사용자 이름/비밀번호 검증 로직 구현
+   - JWT 토큰 생성 및 검증 추가
+   - 로그인/로그아웃 기능 통합
+
+2. 세션 관리 통합：
+   - 세션 저장 및 만료 처리 추가
+   - 다중 장치 로그인 제한 구현
+   - 세션 갱신 메커니즘 추가
+
+【type】feat | fix | docs | style | refactor | test | chore
+
+형식을 엄격히 준수하여 출력'''
         }
     }
     
@@ -139,9 +247,7 @@ type(scope): description (72자 이내)
 {', '.join(files) if files else '无文件列表'}
 
 代码变更内容:
-{diff if diff else '无变更内容'}
-
-只返回commit信息，不要添加任何其他解释。"""
+{diff if diff else '无变更内容'}"""
 
     try:
         response = client.chat.completions.create(
