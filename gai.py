@@ -70,20 +70,64 @@ def generate_commit_message(diff: str, files: list[str], client: openai.OpenAI, 
     
     lang_instructions = {
         'zh': {
-            'system': '你是一个专业的代码贡献者，擅长生成简洁、清晰的中文git commit信息。',
-            'prompt': '你是一个专业的git commit信息生成器。请根据以下代码变更，生成符合 Conventional Commits 规范的中文commit信息。'
+            'system': '你是一个专业的代码贡献者，擅长生成简洁、清晰的中文git commit信息。所有输出必须使用中文。',
+            'prompt': '''你是一个专业的git commit信息生成器。
+任务：根据以下代码变更，生成符合 Conventional Commits 规范的中文commit信息。
+
+要求：
+1. 整个输出必须完全使用中文
+2. 不要在输出中夹杂任何英文或拼音
+3. type使用英文缩写，但description和详细说明必须用中文
+
+格式：
+type(scope): description (不超过72字符)
+[空行]
+详细说明：简要描述这次变更的内容和原因'''
         },
         'en': {
-            'system': 'You are a professional code contributor, skilled at generating concise and clear English git commit messages.',
-            'prompt': 'You are a professional git commit message generator. Based on the code changes below, generate an English commit message following Conventional Commits specification.'
+            'system': 'You are a professional code contributor, skilled at generating concise and clear English git commit messages. All output must be in English.',
+            'prompt': '''You are a professional git commit message generator.
+Task: Based on the code changes below, generate an English commit message following Conventional Commits specification.
+
+Requirements:
+1. All output must be completely in English
+2. Do not mix in any other languages
+3. Use English for everything including description and details
+
+Format:
+type(scope): description (max 72 chars)
+[blank line]
+Detailed description: Briefly describe the changes and reasons'''
         },
         'ja': {
-            'system': 'あなたは簡潔で明確な日本語のgitコミットメッセージを作成するのが得意なプロフェッショナルなコード貢献者です。',
-            'prompt': 'あなたはプロフェッショナルなgitコミットメッセージ生成者です。以下のコード変更に基づいて、Conventional Commits仕様に準拠した日本語のコミットメッセージを生成してください。'
+            'system': 'あなたは簡潔で明確な日本語のgitコミットメッセージを作成するのが得意なプロフェッショナルなコード貢献者です。すべての出力が日本語である必要があります。',
+            'prompt': '''あなたはプロフェッショナルなgitコミットメッセージ生成者です。
+タスク：以下のコード変更に基づいて、Conventional Commits仕様に準拠した日本語のコミットメッセージを生成してください。
+
+要件：
+1. 出力を完全に日本語にする
+2. 他の言語を混ぜない
+3. typeは英略語を使用、説明は日本語
+
+形式：
+type(scope): description (72文字以内)
+[空白行]
+詳細説明：変更の内容と理由を簡単に説明'''
         },
         'ko': {
-            'system': '简洁하고 명확한 한국어 git 커밋 메시지를 작성하는 데 능숙한 전문 코드 기여자입니다.',
-            'prompt': '당신은 전문적인 git 커밋 메시지 생성자입니다. 아래의 코드 변경 사항에 따라 Conventional Commits 사양을 준수하는 한국어 커밋 메시지를 생성해 주세요.'
+            'system': 'あなたは簡潔で明確な日本語のgitコミットメッセージを作成するのが得意なプロフェッショナルなコード貢献者입니다。すべての出力が日本語である必要があります。',
+            'prompt': '''당신은 전문적인 git 커밋 메시지 생성자입니다.
+과제: 아래의 코드 변경 사항에 따라 Conventional Commits 사양을 준수하는 한국어 커밋 메시지를 생성해 주세요.
+
+요구사항:
+1. 모든 출력을 한국어로 작성
+2. 다른 언어를 섞지 않기
+3. type은 영어 약어 사용, 설명은 한국어
+
+형식:
+type(scope): description (72자 이내)
+[빈 줄]
+상세 설명: 변경 내용과 이유를 간단히 설명'''
         }
     }
     
@@ -91,21 +135,13 @@ def generate_commit_message(diff: str, files: list[str], client: openai.OpenAI, 
     
     prompt = f"""{lang_config['prompt']}
 
-暂存区变更的文件 / Changed files:
-{', '.join(files) if files else '无文件列表 / No files listed'}
+变更的文件:
+{', '.join(files) if files else '无文件列表'}
 
-代码变更内容 / Code changes:
-{diff if diff else '无变更内容 / No changes'}
+代码变更内容:
+{diff if diff else '无变更内容'}
 
-请按以下格式生成commit信息 / Please generate commit message in this format:
-1. 第一行 / First line: type(scope): description (不超过72字符 / max 72 chars)
-2. 第二行 / Second line: 空行 / Blank line
-3. 详细说明 / Detailed description: 简要描述这次变更的内容和原因 / Briefly describe the changes and reasons
-
-type可选值 / Available types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, temp
-scope: 此次变更影响的功能模块或文件 / The affected module or file
-
-只返回commit信息，不要添加其他解释 / Only return the commit message, do not add other explanations."""
+只返回commit信息，不要添加任何其他解释。"""
 
     try:
         response = client.chat.completions.create(
